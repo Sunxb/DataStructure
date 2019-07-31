@@ -19,10 +19,12 @@ public class _224_基本计算器 {
 	private int calculaPre(String s) {
 		
 		Stack<String> stack = new Stack<String>();
+		String[] arr = s.split(" ");
+		
 		// 遍历前缀表达式  从后向前
-		for (int i = s.length()-1; i >= 0; i--) {
-			char c = s.charAt(i);
-			if (isSymbol(c)) {
+		for (int i = arr.length-1; i >= 0; i--) {
+			String c = arr[i];
+			if (isSymbol2(c)) {
 				// 如果是运算符
 				String first = String.valueOf(stack.pop());
 				String second = String.valueOf(stack.pop());
@@ -42,16 +44,16 @@ public class _224_基本计算器 {
 	// 逆波兰表达式 其实就是后缀表达式  运算的时候是栈低的在前   前缀表达式相反 - 栈低的在后
 	private String calculateOperation(String first, String second, String symbol) {
 		switch (symbol) {
-		case "+":
-			return String.valueOf(Integer.parseInt(first) + Integer.parseInt(second));
-		case "-":
-			return String.valueOf(Integer.parseInt(first) - Integer.parseInt(second));
-		case "*":
-			return String.valueOf(Integer.parseInt(first) * Integer.parseInt(second));
-		case "/":
-			return String.valueOf(Integer.parseInt(first) / Integer.parseInt(second));
-		default:
-			return "0";
+			case "+":
+				return String.valueOf(Integer.parseInt(first) + Integer.parseInt(second));
+			case "-":
+				return String.valueOf(Integer.parseInt(first) - Integer.parseInt(second));
+			case "*":
+				return String.valueOf(Integer.parseInt(first) * Integer.parseInt(second));
+			case "/":
+				return String.valueOf(Integer.parseInt(first) / Integer.parseInt(second));
+			default:
+				return "0";
 		}
 	}
 	
@@ -72,11 +74,13 @@ public class _224_基本计算器 {
 			if (Character.isDigit(c)) {
 				// 只有一位的数字还是多位的数字
 				int res = (int)c - (int)('0');
+				int index = 1;
 				while ((i-1) >= 0 && Character.isDigit(s.charAt(i-1))) {
 					char next = s.charAt(i-1);
 					int n = (int)next - (int)('0');
-					res = n * 10 + res;
+					res = n * (int)(Math.pow(10,index)) + res;
 					i --;
+					index ++;
 				}
 				
 				valueStack.push(String.valueOf(res));
@@ -96,7 +100,7 @@ public class _224_基本计算器 {
 						symbolStack.push(String.valueOf(c));
 					}
 					// 2. symbolStack 栈顶为 ） 直接进栈
-					else if (symbolStack.peek() == ")") {
+					else if (symbolStack.peek().equals(")")) {
 						symbolStack.push(String.valueOf(c));
 					}
 					// 3. 栈顶是别的运算符  比较优先级  如果优先级 高于 或者 等于 栈顶的运算符  直接进栈
@@ -104,7 +108,9 @@ public class _224_基本计算器 {
 					else {
 						
 						// 比较优先级高低
-						while (!inputIsHigherOrEqual(String.valueOf(c), symbolStack.peek())) {
+						while (!symbolStack.isEmpty() 
+								&& !symbolStack.peek().equals(")")
+								&& !inputIsHigherOrEqual(String.valueOf(c), symbolStack.peek())) {
 							valueStack.push(symbolStack.pop());
 						}
 						symbolStack.push(String.valueOf(c));
@@ -113,11 +119,11 @@ public class _224_基本计算器 {
 				
 				// 3 是左括号 (
 				else {
-					while (symbolStack.peek() != ")") {
+					while (!symbolStack.peek().equals(")")) {
 						valueStack.push(symbolStack.pop());
 					}
 					// 到 右括号停止循环 但是得删掉右括号
-					if (symbolStack.peek() == ")") {
+					if (symbolStack.peek().equals(")")) {
 						symbolStack.pop();
 					}
 				}
@@ -132,6 +138,7 @@ public class _224_基本计算器 {
 		StringBuffer str = new StringBuffer();
 		while (!valueStack.isEmpty()) {
 			str.append(valueStack.pop());
+			str.append(" ");
 		}
 		 
 		return str.toString();
@@ -139,12 +146,12 @@ public class _224_基本计算器 {
 	
 	private boolean inputIsHigherOrEqual(String input, String top) {
 		
-		if (input == "*" || input == "/") {
+		if (input.equals("*") || input.equals("/")) {
 			return true; // 高
 		}
 		
 		else {
-			if (top == "*" || top == "/") {
+			if (top.equals("*") || top.equals("/")) {
 				return false; // 低
 			}
 			else {
@@ -157,10 +164,55 @@ public class _224_基本计算器 {
 	private boolean isSymbol(char c) {
 		return c == '+' || c == '-' || c == '*' || c == '/';
 	}
+	private boolean isSymbol2(String c) {
+		return c.equals("+") || c.equals("-") || c.equals("*") || c.equals("/");
+	}
+	
+	
+	
+	private Stack<Integer> stack = new Stack<>();
+    public int calculate2(String s) {
+        int res = 0;
+        int num = 0;
+        int op = 1;
+        if (s == null || s.length() == 0) {
+            return res;
+        }
+        for (int i = 0, size = s.length(); i < size; i++) {
+            char singleChar = s.charAt(i);
+            if (singleChar == '+') {
+                res = res + num * op;
+                num = 0;
+                op = 1;
+            } else if (singleChar == '-') {
+                res = res + num * op;
+                num = 0;
+                op = -1;
+            } else if (singleChar == '(') {
+                stack.push(res);
+                stack.push(op);
+                res = 0;
+                op = 1;
+                num = 0;
+            } else if (singleChar == ')') {
+                res = res + num * op;
+                res = res * stack.pop();
+                res = res + stack.pop();
+                num = 0;
+                op = 1;
+            } else if (singleChar != ' ') {
+                num = num * 10 + singleChar - '0';
+            }
+        }
+        
+        res = res + num * op;
+        return res;
+    }
+	
 	
 	
     public static void main(String[] args) {
     	_224_基本计算器 obj = new _224_基本计算器();
-		System.out.println(obj.calculate("1223 + 1"));
+		System.out.println(obj.calculate2("3+2-2"));
 	}
 }
