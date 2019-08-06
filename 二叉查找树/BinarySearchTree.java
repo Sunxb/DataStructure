@@ -127,6 +127,43 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 		
 	}
 	
+	/**
+	 * @param node
+	 * @return 是否是完全二叉树
+	 */
+	public boolean isComplete() {
+		
+		if (root == null) return false;
+
+		Queue<Node<T>> queue = new LinkedList<>();
+		queue.offer(root);
+		
+		boolean leaf = false;// 标识当前节点后面的就要是叶子了(层序遍历)
+		
+		while (!queue.isEmpty()) {
+			
+			Node<T> n = queue.poll();
+			if (leaf && !n.isLeaf()) return false;
+			
+			if (n.left != null) {
+				queue.offer(n.left);
+			}
+			else if (n.right != null) { // node.left == null && node.right != null
+				return false;
+			}
+			
+			// 
+			if (n.right != null) { // node.left != null && node.right != null
+				queue.offer(n.right);
+			}
+			else {
+				leaf = true;
+			}
+		}
+		
+		return true;
+	}
+	
 	private void elementNotNullCheck(T element) {
 		if (element == null) {
 			throw new IllegalArgumentException("element not be null");
@@ -237,6 +274,10 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 			this.parent = parent;
 		}
 		
+		public boolean isLeaf() {
+			return left == null && right == null;
+		}
+		
 		@Override
 		public String toString() {
 			// TODO Auto-generated method stub
@@ -249,7 +290,7 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 	public static void main(String[] args) {
 		
 		Integer[] arr = new Integer[] {
-			20, 10, 30, 5, 33, 25, 29, 6, 4
+			20, 10, 30, 5, 33, 25, 6, 4
 		};
 		
 		BinarySearchTree<Integer> binarySearchTree = new BinarySearchTree<Integer>();
@@ -259,17 +300,20 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 		
 		BinaryTrees.println(binarySearchTree);
 		
-		List l = binarySearchTree.preorderTraversal(binarySearchTree.root);
-		System.out.println(l);
+//		List l = binarySearchTree.preorderTraversal(binarySearchTree.root);
+//		System.out.println(l);
+//		
+//		List l2 = binarySearchTree.inorderTraversal(binarySearchTree.root);
+//		System.out.println(l2);
+//		
+//		List l3 = binarySearchTree.postorderTraversal(binarySearchTree.root);
+//		System.out.println(l3);
+//		
+//		List l4 = binarySearchTree.levelOrderTraversal(binarySearchTree.root);
+//		System.out.println(l4);
 		
-		List l2 = binarySearchTree.inorderTraversal(binarySearchTree.root);
-		System.out.println(l2);
+		System.out.println(binarySearchTree.isComplete());
 		
-		List l3 = binarySearchTree.postorderTraversal(binarySearchTree.root);
-		System.out.println(l3);
-		
-		List l4 = binarySearchTree.levelOrderTraversal(binarySearchTree.root);
-		System.out.println(l4);
 		
 //		System.out.println("---");
 //		
