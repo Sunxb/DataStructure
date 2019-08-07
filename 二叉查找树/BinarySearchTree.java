@@ -33,6 +33,47 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 	}
 	
 	/*
+	 * 二叉树高度
+	 * */
+	public int height() {
+		
+		if (root == null) return 0;
+		
+		// 利用层序遍历
+		Queue<Node<T>> queue = new LinkedList<>();
+		queue.offer(root);
+		
+		int height = 0;
+		int index = 1; // 层数
+		
+		while (!queue.isEmpty()) {
+			Node<T> node = queue.poll();
+			index --;
+				
+			if (node.left != null) queue.offer(node.left);
+			if (node.right != null) queue.offer(node.right);
+			
+			if (index == 0) {
+				index = queue.size();
+				height ++;
+			}
+		}
+		return height;
+	}
+	
+	public int height2() {
+		return height(root);
+	}
+	
+	// 递归
+	private int height(Node<T> node) {
+		if (node == null) return 0;
+		return 1+Math.max(height(node.left), height(node.right));
+	}
+	
+	
+	
+	/*
 	 * 添加元素
 	 * */
 	public void add(T element) {
@@ -114,9 +155,53 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 		}
 	}
 	
-	
-	public T remove(T element) {
-		return null;
+	/*
+	 * 删除某一个元素对应的结点
+	 * 
+	 * 分为移除度为0,1,2的三种情况
+	 * */
+	public void remove(T element) {
+		
+		Node<T> node = node(element);
+		// 度为2 找到他的前驱结点  把前驱结点的值 放到要删除节点上面 最后转化为删除这个前驱节点
+		// 前驱的度一定是0或1,肯定不为2
+		if (node.hasTwoChildren()) {
+			// 找到前驱结点
+			Node<T> preNode = preNode(element);
+			node.element = preNode.element;
+			node = preNode;
+		}
+				
+		// 走到这个位置 node的度为1或0
+		Node<T> replacement = node.left != null ? node.left : node.right;
+		if (replacement != null) {
+			replacement.parent = node.parent;
+		}
+		
+		
+		if (node.parent == null) { // 根结点
+			root = replacement;
+			replacement.parent = null;
+		}
+		else if (node.isLeaf()) { // 不是根节点 , 叶子结点 度为0  replacement== null
+			if (node == node.parent.left) {
+				node.parent.left = null;
+			}
+			else { // (node == node.parent.right)
+				node.parent.right = null;
+			}
+			node.parent = null;
+		}
+		else { // 度为1
+			if (node == node.parent.left) {
+				node.parent.left = replacement;
+			}
+			else { // (node == node.parent.right)
+				node.parent.right = replacement;
+			}
+		}
+		
+		size --;
 	}
 	
 	public boolean contain(T element) {
@@ -163,6 +248,68 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 		
 		return true;
 	}
+	
+	/*
+	 * 根据element找到对应的结点
+	 * 
+	 * 最开始的思路是使用层序遍历,一个一个的找,然后比较,找到目标node, 如果是普通的二叉树这样没问题
+	 * 如果是二叉查找树,这样效率比较低,其实完全可以按照特性左小右大,很快就可以找到目标node
+	 * */
+	public Node<T> node(T element) { // 层序遍历方法
+		elementNotNullCheck(element);
+		
+		if (root == null) return null;
+
+		Queue<Node<T>> queue = new LinkedList<>();
+		queue.offer(root);
+		
+		while (!queue.isEmpty()) {
+			Node<T> n = queue.poll();
+			
+			if (compare(element, n.element) == 0) {
+				return n;
+			}
+			
+			if (n.left != null) queue.offer(n.left);
+			if (n.right != null) queue.offer(n.right);
+		}
+		
+		return null;
+	}
+	
+	/*
+	 * 二叉查找树某元素的前驱节点 
+	 * 
+	 * (中序遍历结果的前一个结点,因为中序遍历的结果就是升序)
+	 * */
+	public Node<T> preNode(T element) {
+		Node<T> node = node(element);
+		
+		// 1. 有左子树
+		if (node.left != null) {
+			// 前驱 就是左子树里面最右边的node  .left.right.right...
+			node = node.left;
+			while (node.right != null) {
+				node = node.right;
+			}
+			return node;
+		}
+		
+		// 2. 没有左子树
+		// 2.1 没有父节点
+		// 下面代码可以注销掉  因为后面的循环可以兼容这个代码
+//		if (node.parent == null) { // 没有父节点说明是根结点, 同时没有左子树, 所以根节点没有前驱
+//			return null;
+//		}
+		
+		// 2.2 有父节点
+		while (node.parent != null && node == node.parent.left) {
+			node = node.parent;
+		}
+		return node.parent;
+	
+	}
+	
 	
 	private void elementNotNullCheck(T element) {
 		if (element == null) {
@@ -278,10 +425,17 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 			return left == null && right == null;
 		}
 		
+		public boolean hasTwoChildren() {
+			return left != null && right != null;
+		}
+		
 		@Override
 		public String toString() {
 			// TODO Auto-generated method stub
-			return element+"";
+			if (parent == null) {
+				return element+"_null";
+			}
+			return element+"_"+parent.element;
 		}
 		
 	}
@@ -290,7 +444,8 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 	public static void main(String[] args) {
 		
 		Integer[] arr = new Integer[] {
-			20, 10, 30, 5, 33, 25, 6, 4
+//			20, 10, 30, 5, 33, 25, 6, 4, 24
+				2,1,3,4,5,6,8,7
 		};
 		
 		BinarySearchTree<Integer> binarySearchTree = new BinarySearchTree<Integer>();
@@ -299,6 +454,22 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 		}
 		
 		BinaryTrees.println(binarySearchTree);
+//		
+		binarySearchTree.remove(1);
+		BinaryTrees.println(binarySearchTree);
+//		
+		binarySearchTree.remove(2);
+		BinaryTrees.println(binarySearchTree);
+//		
+//		binarySearchTree.remove(20);
+//		BinaryTrees.println(binarySearchTree);
+//		
+//		binarySearchTree.remove(30);
+//		BinaryTrees.println(binarySearchTree);
+//		
+//		binarySearchTree.add(30);
+//		binarySearchTree.add(20);
+//		BinaryTrees.println(binarySearchTree);
 		
 //		List l = binarySearchTree.preorderTraversal(binarySearchTree.root);
 //		System.out.println(l);
@@ -312,13 +483,20 @@ public class BinarySearchTree<T> implements BinaryTreeInfo {
 //		List l4 = binarySearchTree.levelOrderTraversal(binarySearchTree.root);
 //		System.out.println(l4);
 		
-		System.out.println(binarySearchTree.isComplete());
+//		System.out.println(binarySearchTree.isComplete());
+//		Node<Integer> preNode = binarySearchTree.preNode(33);
+//		if (preNode == null) {
+//			System.out.println("null -- ");
+//		}
+//		else {
+//			System.out.println(preNode.element);
+//		}
 		
 		
-//		System.out.println("---");
-//		
-//		System.out.println(binarySearchTree.root.right.left.right.element);
-//		System.out.println(binarySearchTree.root.right.left.right.parent.element);
+		System.out.println("高度:"+binarySearchTree.height());
+		System.out.println("高度:"+binarySearchTree.height2());
+		
+
 	}
 
 	
