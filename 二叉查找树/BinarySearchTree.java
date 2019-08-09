@@ -171,7 +171,7 @@ public class BinarySearchTree<T> extends BinaryTree<T> {
 	
 	
 	//
-	public static void main(String[] args) {
+//	public static void main(String[] args) {
 		
 //		Integer[] arr = new Integer[] {
 //			20, 10, 30, 5, 33, 25, 6, 4, 24
@@ -227,7 +227,7 @@ public class BinarySearchTree<T> extends BinaryTree<T> {
 //		System.out.println("高度:"+binarySearchTree.height2());
 		
 
-	}
+//	}
 
 	
 	

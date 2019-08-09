@@ -5,9 +5,9 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Stack;
 
 import com.mj.printer.BinaryTreeInfo;
-import com.sunxb.二叉查找树.BinaryTree.Node;
 
 
 public class BinaryTree<T> implements BinaryTreeInfo {
@@ -96,27 +96,6 @@ public class BinaryTree<T> implements BinaryTreeInfo {
 	}
 	
 	/*
-	 * 前序遍历
-	 * */ 
-	private List<T> preorderTraversal(Node<T> node) {
-
-		List<T> list = new ArrayList<>();
-		preorderTraversal_(list, node);
-		return list;
-	}
-	
-	private void preorderTraversal_(List<T> list, Node<T> node) {
-		if (node == null) return;
-		
-		list.add(node.element);
-		preorderTraversal_(list, node.left);
-		preorderTraversal_(list, node.right);		
-		
-	}
-	
-	
-	
-	/*
 	 * 根据element找到对应的结点
 	 * 
 	 * 最开始的思路是使用层序遍历,一个一个的找,然后比较,找到目标node, 如果是普通的二叉树这样没问题
@@ -180,13 +159,52 @@ public class BinaryTree<T> implements BinaryTreeInfo {
 	}
 	
 	
+	/*
+	 * 前序遍历: 递归
+	 * */ 
+	protected List<T> preorderTraversal() {
+
+		List<T> list = new ArrayList<>();
+		preorderTraversal_(list, root);
+		return list;
+	}
+	
+	private void preorderTraversal_(List<T> list, Node<T> node) {
+		if (node == null) return;
+		
+		list.add(node.element);
+		preorderTraversal_(list, node.left);
+		preorderTraversal_(list, node.right);		
+	}
+	
+	/**
+	 * 前序遍历: 迭代
+	 * 
+	 * 利用栈的特性,先进后出, 先往里放right node
+	 */
+	protected List<T> preorderTraversal2() {
+
+		List<T> list = new ArrayList<>();
+		Stack<Node<T>> stack = new Stack<Node<T>>();
+		stack.push(root);
+		
+		while (!stack.isEmpty()) {
+			Node<T> n = stack.pop();
+			list.add(n.element);
+			if (n.right != null) stack.push(n.right);
+			if (n.left != null) stack.push(n.left);
+		}
+		
+		return list;
+	}
+	
 	
 	/*
 	 * 中序遍历
 	 * */
-	private List<T> inorderTraversal(Node<T> node) {
+	protected List<T> inorderTraversal() {
 		List<T> list = new ArrayList<>();
-		inorderTraversal_(list, node);
+		inorderTraversal_(list, root);
 		return list;
 	}
 	
@@ -200,9 +218,51 @@ public class BinaryTree<T> implements BinaryTreeInfo {
 	}
 	
 	/*
+	 * 中序遍历: 迭代
+	 * */
+	protected List<T> inorderTraversal2() {
+		List<T> list = new ArrayList<>();
+		Stack<Node<T>> stack = new Stack<Node<T>>();
+		stack.push(root);
+		
+		while (!stack.isEmpty()) {	
+			Node<T> n = stack.pop();
+			
+			if (!list.contains(n.element)) {
+				if (n.left != null) {
+					if (!list.contains(n.left.element)) {
+						stack.push(n);
+						stack.push(n.left);
+						
+						continue;
+					}					
+				}
+				
+				list.add(n.element);
+				if (n.right != null) {
+					stack.push(n.right);
+				}
+			}
+			
+			
+			else {
+				if (n.right != null) {
+					if (!list.contains(n.right.element)) {
+						stack.push(n.right);
+					}		
+				}
+			}
+		}
+		
+		
+		return list;
+	}
+	
+	
+	/*
 	 * 后序遍历
 	 * */
-	private List<T> postorderTraversal(Node<T> node) {
+	protected List<T> postorderTraversal(Node<T> node) {
 		List<T> list = new ArrayList<>();
 		postorderTraversal_(list, node);
 		return list;
