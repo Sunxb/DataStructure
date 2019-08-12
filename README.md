@@ -43,12 +43,16 @@ class BinarySearchTree 手写一个二叉查找树 （完善ing）
 
 根据中序和前序遍历结果推出后序遍历结果 （TreeOrderManager）
 
-前驱节点, 后继节点
-
 二叉树 height
+
+前驱节点, 后继节点
 
 移除二叉树某个结点
 
+##### AVL树
 
+实现AVL树
+
+添加结点
 
 
