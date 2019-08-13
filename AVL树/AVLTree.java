@@ -32,7 +32,18 @@ public class AVLTree<T> extends BinarySearchTree<T> {
 				break;
 			}
 		}
-		
+	}
+	
+	@Override
+	protected void afterRemove(Node<T> node) {
+		while ((node = node.parent) != null) {
+			if (isBalance(node)) {
+				updateHeight(node);
+			}
+			else {
+				reBalance(node);
+			}
+		}
 	}
 	
 	@Override

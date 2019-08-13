@@ -76,9 +76,17 @@ public class Main {
 		
 		BinaryTrees.println(avlTree);
 		System.out.println("\n\n");
-		BinaryTrees.println(search);
+//		BinaryTrees.println(search);
 		
+		avlTree.remove(66);
+		BinaryTrees.println(avlTree);
+//		search.remove(66);
+//		BinaryTrees.println(search);
 		
+		avlTree.remove(52);
+		BinaryTrees.println(avlTree);
+//		search.remove(52);
+//		BinaryTrees.println(search);
 		
 		
 	//	System.out.println("高度:"+binarySearchTree.height());

@@ -107,7 +107,6 @@ public class BinarySearchTree<T> extends BinaryTree<T> {
 		
 	}
 
-	
 	/*
 	 * 删除某一个元素对应的结点
 	 * 
@@ -135,6 +134,9 @@ public class BinarySearchTree<T> extends BinaryTree<T> {
 		if (node.parent == null) { // 根结点
 			root = replacement;
 			replacement.parent = null;
+			
+			//
+			afterRemove(node);
 		}
 		else if (node.isLeaf()) { // 不是根节点 , 叶子结点 度为0  replacement== null
 			if (node == node.parent.left) {
@@ -143,7 +145,9 @@ public class BinarySearchTree<T> extends BinaryTree<T> {
 			else { // (node == node.parent.right)
 				node.parent.right = null;
 			}
-			node.parent = null;
+			
+			//
+			afterRemove(node);
 		}
 		else { // 度为1
 			if (node == node.parent.left) {
@@ -152,9 +156,15 @@ public class BinarySearchTree<T> extends BinaryTree<T> {
 			else { // (node == node.parent.right)
 				node.parent.right = replacement;
 			}
+			//
+			afterRemove(node);
 		}
 		
 		size --;
+	}
+	
+	protected void afterRemove(Node<T> node) {
+		
 	}
 	
 	public boolean contain(T element) {
